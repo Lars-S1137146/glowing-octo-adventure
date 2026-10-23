@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="LongRest.Domain/LongRest.Domain.csproj" />
+  <Project Path="tests/LongRest.Domain.Tests/LongRest.Domain.Tests.csproj" />
   <Project Path="LongRest.Console/LongRest.Console.csproj" />
 </Solution>

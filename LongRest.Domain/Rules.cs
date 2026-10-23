@@ -82,6 +82,37 @@ public enum Condition
     Unconscious
 }
 
+/// <summary>
+/// Facts supplied by the caller; condition and proficiency rules belong in the domain.
+/// </summary>
+public sealed record RollContext(
+    int AdvantageSources = 0,
+    int DisadvantageSources = 0,
+    int Modifier = 0,
+    Cover Cover = Cover.None,
+    bool RequiresSight = false,
+    bool RequiresHearing = false,
+    bool? FearSourceVisible = null,
+    Character? SocialTarget = null);
+
+public sealed record CheckResult(
+    int Die,
+    int Total,
+    bool Success,
+    bool AutomaticFailure = false);
+
+public enum ContestOutcome
+{
+    FirstWins,
+    SecondWins,
+    Tie
+}
+
+public sealed record ContestResult(
+    CheckResult First,
+    CheckResult Second,
+    ContestOutcome Outcome);
+
 public sealed record PointBuyResult(
     int Spent,
     int Remaining);
