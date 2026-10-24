@@ -87,5 +87,50 @@ public sealed partial class Character
         return new(first, second, outcome);
     }
 
-}
+    public DamageResult TakeDamage(Damage damage)
+    {
+        ArgumentNullException.ThrowIfNull(damage);
+        ArgumentOutOfRangeException.ThrowIfNegative(damage.Amount);
+        Validation.Defined(damage.Type);
+        if (damage.Nonlethal && !damage.Melee) throw new ArgumentException("Only melee attacks can knock a creature out.");
+        var amount = Math.Max(0, checked(damage.Amount + damage.FlatModifier));
+        if (Immunities.Contains(damage.Type) || (Has(Condition.Petrified) && damage.Type == DamageType.Poison)) amount = 0;
+        if (Resistances.Contains(damage.Type) || Has(Condition.Petrified)) amount /= 2;
+        if (Vulnerabilities.Contains(damage.Type)) amount = checked(amount * 2);
+        var hpBefore = Health.Value;
+        var tempBefore = Health.TempHealth;
+        Health.ApplyDamage(amount, damage.Critical, damage.Nonlethal);
+        return new(amount, tempBefore - Health.TempHealth, hpBefore - Health.Value);
+    }
 
+    public void Heal(int amount) => Health.Heal(amount);
+
+    public bool TryStabilize(Character target, DiceThrow? roll)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        if (!CanAct) throw new InvalidOperationException("You cannot take an action.");
+        if (!target.Health.IsDowned) throw new InvalidOperationException("The target must be living and at zero HP.");
+        var result = Check(Ability.Wisdom, roll, 10, Skill.Medicine);
+        if (result.Success) target.Health.Stabilize();
+        return result.Success;
+    }
+
+    public void ShortRest(DiceRoll dice)
+    {
+        ArgumentNullException.ThrowIfNull(dice);
+        if (Health.IsDead) throw new InvalidOperationException("The dead cannot rest.");
+        if (dice.Sides != HitDice.Sides) throw new ArgumentException("Roll the character's Hit Dice.");
+        if (dice.Faces.Count > HitDice.Remaining) throw new InvalidOperationException("Not enough Hit Dice.");
+        var healing = dice.Faces.Sum(face => Math.Max(0, face + Stats.GetModifier(Ability.Constitution)));
+        HitDice.Spend(dice.Faces.Count);
+        Health.Heal(healing);
+    }
+
+    public void LongRest()
+    {
+        if (Health.IsDead || Health.Value == 0) throw new InvalidOperationException("A long rest requires at least one HP at its start.");
+        Health.Heal(Health.Max);
+        Health.OfferTemporary(0, true);
+        HitDice.Recover();
+    }
+}
