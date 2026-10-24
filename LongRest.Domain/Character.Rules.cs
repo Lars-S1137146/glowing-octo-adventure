@@ -100,7 +100,13 @@ public sealed partial class Character
         var hpBefore = Health.Value;
         var tempBefore = Health.TempHealth;
         Health.ApplyDamage(amount, damage.Critical, damage.Nonlethal);
-        return new(amount, tempBefore - Health.TempHealth, hpBefore - Health.Value);
+        int? dc = null;
+        if (amount > 0 && Spellcasting?.ConcentratingOn is not null)
+        {
+            dc = Math.Max(10, amount / 2);
+            Spellcasting.QueueConcentrationSave(dc.Value);
+        }
+        return new(amount, tempBefore - Health.TempHealth, hpBefore - Health.Value, dc);
     }
 
     public void Heal(int amount) => Health.Heal(amount);
@@ -124,6 +130,7 @@ public sealed partial class Character
         var healing = dice.Faces.Sum(face => Math.Max(0, face + Stats.GetModifier(Ability.Constitution)));
         HitDice.Spend(dice.Faces.Count);
         Health.Heal(healing);
+        if (Spellcasting?.RecoverOnShortRest == true) Spellcasting.RestoreSlots();
     }
 
     public void LongRest()
@@ -132,5 +139,6 @@ public sealed partial class Character
         Health.Heal(Health.Max);
         Health.OfferTemporary(0, true);
         HitDice.Recover();
+        Spellcasting?.RestoreSlots();
     }
 }

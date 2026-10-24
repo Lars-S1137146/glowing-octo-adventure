@@ -3,10 +3,10 @@ namespace LongRest.Domain.Tests;
 internal static class Fixtures
 {
     public static Character Hero(Stats? stats = null, int hp = 20, int level = 1,
-        Proficiencies? proficiencies = null, HitDice? hitDice = null,
+        Proficiencies? proficiencies = null, HitDice? hitDice = null, LongRest.Domain.Spellcasting? spells = null,
         DamageType[]? resistances = null, DamageType[]? vulnerabilities = null, DamageType[]? immunities = null) =>
         new("Adventurer", stats ?? new(), hp, level, proficiencies: proficiencies,
-            hitDice: hitDice, resistances: resistances,
+            hitDice: hitDice, spellcasting: spells, resistances: resistances,
             vulnerabilities: vulnerabilities, immunities: immunities);
 
     public static Equipment Sword() => new("Longsword", EquipmentKind.Weapon)
@@ -27,6 +27,9 @@ internal static class Fixtures
         if (equip) character.Inventory.Equip(item);
         return item;
     }
+    public static LongRest.Domain.Spellcasting Magic(Spell[]? spells = null, Spell[]? cantrips = null,
+        Dictionary<int, int>? slots = null, SpellAvailability mode = SpellAvailability.Known) =>
+        new(Ability.Intelligence, mode, spells ?? [], cantrips ?? [], slots ?? new() { [1] = 2, [3] = 1 });
     public static (int Hp, int Max, int Temp, bool Dead) HealthState(Character character) =>
         (character.Health.Value, character.Health.Max, character.Health.TempHealth, character.Health.IsDead);
 }

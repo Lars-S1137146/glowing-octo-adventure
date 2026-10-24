@@ -19,6 +19,7 @@ public sealed partial class Character
     public Inventory Inventory { get; } = new();
     public Proficiencies Proficiencies { get; }
     public HitDice HitDice { get; }
+    public Spellcasting? Spellcasting { get; }
     public int? PlayerLevel { get; }
     public int Level => PlayerLevel ?? 1;
     public int Speed { get; }
@@ -32,7 +33,7 @@ public sealed partial class Character
 
     public Character(string name, Stats stats, int maximumHealth = 10, int? level = 1,
         int? proficiencyBonus = null, int speed = 30, Proficiencies? proficiencies = null,
-        HitDice? hitDice = null,
+        HitDice? hitDice = null, Spellcasting? spellcasting = null,
         IEnumerable<DamageType>? resistances = null, IEnumerable<DamageType>? vulnerabilities = null,
         IEnumerable<DamageType>? immunities = null, Class? characterClass = null,
         Race? race = null, Background? background = null, int? armorClass = null)
@@ -52,6 +53,7 @@ public sealed partial class Character
         Speed = speed;
         Proficiencies = proficiencies ?? new();
         HitDice = hitDice ?? new(level ?? 1, 8);
+        Spellcasting = spellcasting;
         Resistances = DamageTypes(resistances);
         Vulnerabilities = DamageTypes(vulnerabilities);
         Immunities = DamageTypes(immunities);
@@ -141,6 +143,7 @@ public sealed partial class Character
             conditions.TryAdd(Condition.Prone, null);
             Inventory.DropHeldItems();
         }
+        if (!CanAct) Spellcasting?.EndConcentration();
         if (!CanAct || CurrentSpeed == 0) LostDodgeBenefits?.Invoke(this);
     }
 
@@ -158,6 +161,7 @@ public sealed partial class Character
             Inventory.DropHeldItems();
         }
         wasAtZeroHp = Health.Value == 0;
+        if (!CanAct) Spellcasting?.EndConcentration();
         if (!CanAct || CurrentSpeed == 0) LostDodgeBenefits?.Invoke(this);
     }
 
