@@ -30,6 +30,16 @@ internal static class Fixtures
     public static LongRest.Domain.Spellcasting Magic(Spell[]? spells = null, Spell[]? cantrips = null,
         Dictionary<int, int>? slots = null, SpellAvailability mode = SpellAvailability.Known) =>
         new(Ability.Intelligence, mode, spells ?? [], cantrips ?? [], slots ?? new() { [1] = 2, [3] = 1 });
+    public static Encounter Fight(Character first, Character? second = null, int attacks = 1, bool surprised = false,
+        int actions = 1)
+    {
+        var encounter = new Encounter(second is null
+            ? [new(first, 15, surprised, actions, attacks)]
+            : [new(first, 15, surprised, actions, attacks), new(second, 10)]);
+        encounter.StartTurn();
+        return encounter;
+    }
+
     public static (int Hp, int Max, int Temp, bool Dead) HealthState(Character character) =>
         (character.Health.Value, character.Health.Max, character.Health.TempHealth, character.Health.IsDead);
 }
