@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\LongRest.Console\LongRest.Console.csproj" />
     <ProjectReference Include="..\..\LongRest.Domain\LongRest.Domain.csproj" />
   </ItemGroup>
 

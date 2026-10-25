@@ -7,4 +7,7 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="../LongRest.Domain/LongRest.Domain.csproj" />
+    </ItemGroup>
 </Project>
