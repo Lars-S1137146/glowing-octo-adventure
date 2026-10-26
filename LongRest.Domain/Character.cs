@@ -9,7 +9,7 @@ public sealed partial class Character
     private bool wasAtZeroHp;
     internal event Action<Character>? LostDodgeBenefits;
 
-    public Guid Id { get; } = Guid.NewGuid();
+    public Guid Id { get; }
     public string Name { get; private set; }
     public Class Class { get; }
     public Race Race { get; }
@@ -30,15 +30,20 @@ public sealed partial class Character
     public IReadOnlyCollection<DamageType> Resistances { get; }
     public IReadOnlyCollection<DamageType> Vulnerabilities { get; }
     public IReadOnlyCollection<DamageType> Immunities { get; }
+    public IReadOnlyDictionary<Condition, Character?> AppliedConditions =>
+        new System.Collections.ObjectModel.ReadOnlyDictionary<Condition, Character?>(conditions);
+    public int? ConfiguredArmorClass => armorClassOverride;
 
     public Character(string name, Stats stats, int maximumHealth = 10, int? level = 1,
         int? proficiencyBonus = null, int speed = 30, Proficiencies? proficiencies = null,
         HitDice? hitDice = null, Spellcasting? spellcasting = null,
         IEnumerable<DamageType>? resistances = null, IEnumerable<DamageType>? vulnerabilities = null,
         IEnumerable<DamageType>? immunities = null, Class? characterClass = null,
-        Race? race = null, Background? background = null, int? armorClass = null)
+        Race? race = null, Background? background = null, int? armorClass = null, Guid? id = null)
     {
         Name = Validation.Name(name);
+        if (id == Guid.Empty) throw new ArgumentException("A character ID cannot be empty.", nameof(id));
+        Id = id ?? Guid.NewGuid();
         ArgumentNullException.ThrowIfNull(stats);
         if (level is not null) Validation.Range(level.Value, 1, 20, nameof(level));
         if ((level is null && proficiencyBonus is null) || proficiencyBonus <= 0 ||

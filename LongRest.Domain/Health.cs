@@ -22,14 +22,27 @@ public sealed class Health
 
     public void Set(int current, int maximum, int temporary)
     {
+        Restore(current, maximum, temporary, 0, 0, false, false);
+    }
+
+    /// <summary>Restores established health state without applying healing or damage.</summary>
+    public void Restore(int current, int maximum, int temporary, int successes, int failures, bool stable, bool dead)
+    {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maximum);
         Validation.Range(current, 0, maximum, nameof(current));
         ArgumentOutOfRangeException.ThrowIfNegative(temporary);
+        Validation.Range(successes, 0, 2, nameof(successes));
+        Validation.Range(failures, 0, dead ? 3 : 2, nameof(failures));
+        if ((current > 0 && (dead || stable || successes != 0 || failures != 0)) ||
+            (stable && (dead || successes != 0 || failures != 0)))
+            throw new ArgumentException("Inconsistent health and death-save state.");
         Value = current;
         Max = maximum;
         TempHealth = temporary;
-        IsDead = false;
-        ResetDeathSaves();
+        IsDead = dead;
+        IsStable = stable;
+        DeathSuccesses = successes;
+        DeathFailures = failures;
         Changed?.Invoke();
     }
 

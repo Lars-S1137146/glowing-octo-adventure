@@ -8,6 +8,12 @@ public class Proficiencies
     private readonly HashSet<ArmorCategory> armor;
     private readonly Dictionary<Equipment, Training> tools;
     private readonly HashSet<string> specificWeapons;
+    public IReadOnlyDictionary<Skill, Training> Skills => new System.Collections.ObjectModel.ReadOnlyDictionary<Skill, Training>(skills);
+    public IReadOnlyCollection<Ability> SavingThrows => Array.AsReadOnly(saves.ToArray());
+    public IReadOnlyCollection<WeaponCategory> WeaponCategories => Array.AsReadOnly(weapons.ToArray());
+    public IReadOnlyCollection<ArmorCategory> ArmorCategories => Array.AsReadOnly(armor.ToArray());
+    public IReadOnlyCollection<string> SpecificWeapons => Array.AsReadOnly(specificWeapons.ToArray());
+    public IReadOnlyDictionary<Equipment, Training> Tools => new System.Collections.ObjectModel.ReadOnlyDictionary<Equipment, Training>(tools);
 
     public Proficiencies(IReadOnlyDictionary<Skill, Training>? skills = null,
         IEnumerable<Ability>? saves = null, IEnumerable<WeaponCategory>? weapons = null,

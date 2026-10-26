@@ -155,4 +155,22 @@ public sealed class Spellcasting
     {
         foreach (var (level, count) in maximumSlots) remainingSlots[level] = count;
     }
+
+    /// <summary>Restores established resources without casting spells or consuming slots.</summary>
+    public void RestoreResources(IReadOnlyDictionary<int, int> slots, Spell? concentration, IEnumerable<int> pending)
+    {
+        ArgumentNullException.ThrowIfNull(slots);
+        ArgumentNullException.ThrowIfNull(pending);
+        if (slots.Count != maximumSlots.Count || slots.Keys.Any(level => !maximumSlots.ContainsKey(level)))
+            throw new ArgumentException("Supply remaining counts for exactly the configured slot levels.");
+        foreach (var (level, count) in slots) Validation.Range(count, 0, maximumSlots[level], nameof(slots));
+        var saves = pending.ToArray();
+        foreach (var dc in saves) ArgumentOutOfRangeException.ThrowIfLessThan(dc, 10);
+        if ((concentration is not null && !concentration.Concentration) || (concentration is null && saves.Length > 0))
+            throw new ArgumentException("Pending saves require a concentration spell.");
+        foreach (var (level, count) in slots) remainingSlots[level] = count;
+        concentratingOn = concentration;
+        pendingSaves.Clear();
+        foreach (var dc in saves) pendingSaves.Enqueue(dc);
+    }
 }

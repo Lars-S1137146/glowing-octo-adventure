@@ -83,11 +83,12 @@ public sealed class Equipment
 
     public Equipment(
         string name,
-        EquipmentKind kind = EquipmentKind.Item)
+        EquipmentKind kind = EquipmentKind.Item,
+        Guid id = default)
     {
         Name = Validation.Name(name);
         Validation.Defined(kind);
         Kind = kind;
-        Id = Guid.NewGuid();
+        Id = id == Guid.Empty ? Guid.NewGuid() : id;
     }
 }
