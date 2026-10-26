@@ -11,12 +11,24 @@ public sealed class User
 
     public string Name { get; }
     public IReadOnlyList<Character> Characters => characters.AsReadOnly();
+    internal byte[] PasswordSalt => (byte[])salt.Clone();
+    internal byte[] PasswordHash => (byte[])passwordHash.Clone();
 
     internal User(string name, string password)
     {
         Name = name;
         salt = RandomNumberGenerator.GetBytes(16);
         passwordHash = Hash(password);
+    }
+
+    internal User(string name, byte[] salt, byte[] passwordHash)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (name.Length > 64 || salt.Length != 16 || passwordHash.Length != 32)
+            throw new InvalidDataException("Invalid saved account credentials.");
+        Name = name;
+        this.salt = (byte[])salt.Clone();
+        this.passwordHash = (byte[])passwordHash.Clone();
     }
 
     private byte[] Hash(string password) =>
