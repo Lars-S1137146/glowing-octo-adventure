@@ -71,6 +71,10 @@ public sealed partial class ConsoleApplication
             case "character": CharacterCommand(words); break;
             case "sheet": ShowSheet(Hero()); break;
             case "stats": StatsCommand(words); break;
+            case "spells": SpellsCommand(words); break;
+            case "spell": SpellCommand(words); break;
+            case "cast": CastCommand(words); break;
+            case "concentration": ConcentrationCommand(words); break;
             case "inventory": InventoryCommand(words); break;
             case "equip": Hero().Inventory.Equip(EquipmentCatalog.Find(NameAfter(words, 1))); output.WriteLine("Equipped."); break;
             case "unequip": Hero().Inventory.Unequip(EquipmentCatalog.Find(NameAfter(words, 1))); output.WriteLine("Unequipped."); break;
@@ -134,6 +138,11 @@ public sealed partial class ConsoleApplication
             logout / quit
             character create / list / select <name> / rename <name>
             sheet / stats / stats set <ability> <score>
+            spells / spells catalog [level]
+            spell show <name> / learn <name> / forget <name>
+            spell prepare <name> / unprepare <name>
+            cast <name> [slot level]                  Reaction triggers are prompted
+            concentration / concentration save / concentration end
             inventory / inventory catalog
             inventory add <item> / remove <item>     One item at a time
             equip <item> / unequip <item>
