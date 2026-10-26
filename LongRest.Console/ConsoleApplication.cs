@@ -71,9 +71,33 @@ public sealed partial class ConsoleApplication
             case "character": CharacterCommand(words); break;
             case "sheet": ShowSheet(Hero()); break;
             case "stats": StatsCommand(words); break;
+            case "inventory": InventoryCommand(words); break;
+            case "equip": Hero().Inventory.Equip(EquipmentCatalog.Find(NameAfter(words, 1))); output.WriteLine("Equipped."); break;
+            case "unequip": Hero().Inventory.Unequip(EquipmentCatalog.Find(NameAfter(words, 1))); output.WriteLine("Unequipped."); break;
+            case "damage": DamageCommand(words); break;
+            case "heal":
+                Exact(words, 2, "heal <amount>");
+                Hero().Heal(Number(words[1]));
+                output.WriteLine("HP: " + Hero().Health.Value);
+                break;
+            case "temp":
+                Exact(words, 2, "temp <amount>");
+                Hero().Health.OfferTemporary(Number(words[1]), true);
+                output.WriteLine("Temporary HP: " + Hero().Health.TempHealth);
+                break;
+            case "rest": RestCommand(words); break;
+            case "check": CheckCommand(words, savingThrow: false); break;
+            case "save": CheckCommand(words, savingThrow: true); break;
+            case "deathsave":
+                Exact(words, 1, "deathsave");
+                Hero().Health.DeathSave(ReadThrow(ThrowType.Normal)!);
+                output.WriteLine($"HP: {Hero().Health.Value}, successes: {Hero().Health.DeathSuccesses}, failures: {Hero().Health.DeathFailures}, stable: {Hero().Health.IsStable}, dead: {Hero().Health.IsDead}");
+                break;
+            case "condition": ConditionCommand(words); break;
             default: throw new ArgumentException("Unknown command. Type help.");
         }
     }
+
     private Character Hero() => SelectedCharacter ?? throw new InvalidOperationException("Create or select a character first.");
 
     private string Prompt(string label)
@@ -105,8 +129,20 @@ public sealed partial class ConsoleApplication
 
     private void ShowHelp()
     {
-        output.WriteLine("register [username] / login [username] / logout / quit");
-        output.WriteLine("character create / list / select <name> / rename <name>");
-        output.WriteLine("sheet / stats / stats set <ability> <score>");
+        output.WriteLine("""
+            register [username] / login [username]   Password is prompted
+            logout / quit
+            character create / list / select <name> / rename <name>
+            sheet / stats / stats set <ability> <score>
+            inventory / inventory catalog
+            inventory add <item> / remove <item>     One item at a time
+            equip <item> / unequip <item>
+            damage <amount> <type> / heal <amount> / temp <amount>
+            check <ability> <DC> [skill] / save <ability> <DC>
+            deathsave
+            condition add <condition> / remove <condition>
+            rest short / rest long
+            Names with spaces may be quoted. Dice faces are supplied when prompted.
+            """);
     }
 }
