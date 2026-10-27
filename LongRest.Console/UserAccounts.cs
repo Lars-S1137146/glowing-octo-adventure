@@ -62,8 +62,18 @@ public sealed class User
 
 public sealed class UserAccounts
 {
-    private readonly List<User> users = [];
+    private readonly List<User> users;
+    private readonly SqliteStorage? storage;
     public IReadOnlyList<User> Users => users.AsReadOnly();
+    public string? DatabasePath => storage?.DatabasePath;
+
+    public UserAccounts(SqliteStorage? storage = null)
+    {
+        this.storage = storage;
+        users = storage?.LoadUsers() ?? [];
+    }
+
+    public void Save() => storage?.SaveUsers(users);
 
     public User Register(string name, string password)
     {
