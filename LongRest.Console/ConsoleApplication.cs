@@ -23,7 +23,9 @@ public sealed partial class ConsoleApplication
     {
         output.WriteLine("LongRest - D&D 5e (2014)");
         output.WriteLine("Register or login to begin. Type help for commands.");
-        output.WriteLine("Accounts and characters last until you quit.");
+        output.WriteLine(accounts.DatabasePath is { } path
+            ? "Changes are saved automatically. Database: " + path
+            : "Accounts and characters last until you quit.");
         while (true)
         {
             output.Write(SelectedCharacter is null ? "longrest> " : SelectedCharacter.Name + "> ");
@@ -40,6 +42,11 @@ public sealed partial class ConsoleApplication
             catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or FormatException or OverflowException)
             {
                 output.WriteLine("Error: " + exception.Message);
+            }
+            finally
+            {
+                // Also retain completed steps when a multi-prompt command is interrupted.
+                accounts.Save();
             }
         }
     }

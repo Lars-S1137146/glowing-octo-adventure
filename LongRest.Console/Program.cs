@@ -1,6 +1,25 @@
 using LongRest.ConsoleApp;
+using Microsoft.Data.Sqlite;
 
-new ConsoleApplication(Console.In, Console.Out, readPassword: ReadPassword).Run();
+if (args.Length != 0 && (args.Length != 2 || args[0] != "--database"))
+{
+    Console.Error.WriteLine("Usage: LongRest.Console [--database <path>]");
+    Environment.ExitCode = 2;
+    return;
+}
+
+try
+{
+    var storage = new SqliteStorage(args.Length == 2 ? args[1] : SqliteStorage.DefaultPath);
+    var accounts = new UserAccounts(storage);
+    new ConsoleApplication(Console.In, Console.Out, accounts, ReadPassword).Run();
+}
+catch (Exception exception) when (exception is SqliteException or IOException or UnauthorizedAccessException or ArgumentException or InvalidOperationException)
+{
+    Console.Error.WriteLine("Storage error: " + exception.Message);
+    Console.Error.WriteLine("The application has stopped. Changes from the last command may not have been saved.");
+    Environment.ExitCode = 1;
+}
 
 static string? ReadPassword()
 {
