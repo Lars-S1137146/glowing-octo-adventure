@@ -1,6 +1,6 @@
 ﻿# LongRest console rules contract
 
-This replaces the source project's unfinished learning exercise. The agreed first release implements its shared PHB 2014 mechanics, changes the dice API, and adds an in-memory console with level-one character creation. It is not a claim that every PHB rule or feature is automated.
+This replaces the source project's unfinished learning exercise. The console implements its shared PHB 2014 mechanics, changes the dice API, and adds level-one character creation with local SQLite persistence. It is not a claim that every PHB rule or feature is automated.
 
 ## Sources and edition
 
@@ -55,7 +55,8 @@ Ignore later optional class features and expanded spell lists included in the su
 
 ## Explicit conventions and limits
 
-- Accounts and character lists exist only for the running process. Passwords are salted hashes.
+- A local SQLite database and its directory are created if missing. Accounts and characters load on startup and save automatically after each command. Passwords remain salted hashes. The domain has no SQLite or JSON dependency.
+- Saves use transactions. Invalid saved data or an unsupported schema version is reported without replacing existing data. Character editing assumes one running console instance.
 - Creation is level one. Existing domain fixtures may configure established higher-level characters and monsters, but no leveling workflow or automatic higher-level class progression exists.
 - Spell choices are sheet configuration. The player/DM adjudicates preparation time, replacing known choices, spellbook copying costs and circumstances.
 - Starting class spell limits and prepared-spell limits are enforced. Full spell/class progression, domains and subclass lists are not.

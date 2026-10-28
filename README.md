@@ -1,6 +1,6 @@
 ﻿# LongRest Console
 
-A small, in-memory D&D 5e character manager using **PHB 2014** rules. This is the first-release scope agreed for the console rewrite: shared mechanics and level-one character creation. It does not automate the entire handbook.
+A small D&D 5e character manager using **PHB 2014** rules, with local SQLite persistence. It supports shared mechanics and level-one character creation. It does not automate the entire handbook.
 
 ## Run
 
@@ -12,7 +12,17 @@ dotnet build LongRest.Console.slnx --no-restore
 dotnet run --project LongRest.Console --no-build --no-restore
 ```
 
-Register a username and password. Registration logs you in. Password entry is hidden in an interactive terminal; stored passwords use salted PBKDF2 hashes. Users and characters are stored in lists, and **everything is discarded when the process exits**.
+Register a username and password. Registration logs you in. Password entry is hidden in an interactive terminal; stored passwords use salted PBKDF2 hashes. Accounts and characters are loaded at startup and saved automatically after each command, including logout and quit.
+
+The application creates its database and directory on first startup. On Windows the default file is **%LOCALAPPDATA%\\LongRest\\longrest.db**, independent of the build output or working directory. The startup message displays its full path. Reopening the app lets you log in and select your existing characters.
+
+To choose another database file:
+
+```powershell
+dotnet run --project LongRest.Console -- --database ./longrest.db
+```
+
+To back up your data, close the application and copy the database file. Saved state includes character identities, stats, training, inventory/equipment, conditions and their sources, HP/death saves, Hit Dice, spellbooks/prepared spells, remaining slots and pending concentration saves. A failed save rolls back its transaction; unreadable saved data is reported instead of resetting the database.
 
 Type `help` at any time. Names are case insensitive; multiword names can be quoted.
 
@@ -75,10 +85,12 @@ Equipment commands add/remove one owned item at a time; they do not simulate pur
 There are three projects:
 
 - `LongRest.Domain`: synchronous rules and ordinary C# data definitions.
-- `LongRest.Console`: accounts, prompts, command parsing and display.
+- `LongRest.Console`: accounts, prompts, command parsing, display and SQLite persistence.
 - `tests/LongRest.Domain.Tests`: copied and migrated TUnit tests, plus creation, interaction and console journeys.
 
 The original web application was not copied or changed. The domain has no database, network, authentication, console calls, random dice generation, DI setup, or generic feature engine.
+
+`LongRest.Console/Persistence` contains the SQLite store and plain character snapshot objects. Microsoft.Data.Sqlite is the only database package. Account rows contain password salts/hashes and a JSON snapshot of their character graphs. Restoration preserves catalog references and links conditions back to the correct saved characters without replaying game actions. The database has an explicit schema version; unsupported versions fail without resetting saved data. Character editing currently assumes one running console instance.
 
 ### Dice
 
@@ -111,7 +123,7 @@ These remain manual or outside this release:
 - Languages, tools granted by character backgrounds/classes, starting equipment packages, currency and encumbrance.
 - Individual spell effects, material costs, rituals, longer casting times, duration countdowns and spell-target geometry.
 - Exhaustion, survival, exploration, maps, opportunity-attack triggers, grappling/shoving and special weapon actions such as nets and lances.
-- Persistence and multiplayer.
+- Multiplayer.
 
 The catalog's display metadata does not imply those effects are automated. See [the rules contract](LongRest_Domain_Requirements.md) for the boundary and conventions.
 
