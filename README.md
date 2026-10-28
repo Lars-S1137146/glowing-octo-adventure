@@ -74,6 +74,8 @@ Spell selection commands edit the character sheet. Clerics and druids prepare di
 | Casting | `cast <name> [slot level]`, `concentration`, `concentration save`, `concentration end` |
 | Equipment | `inventory`, `inventory catalog`, `inventory add <item>`, `inventory remove <item>`, `equip <item>`, `unequip <item>` |
 | Health | `damage <amount> <type>`, `heal <amount>`, `temp <amount>`, `deathsave` |
+| Combat | `attack <target> [weapon]` |
+| Encounters | `encounter`, `encounter start [names...]`, `encounter status`, `encounter action <action>`, `encounter attack <target> [weapon]`, `encounter cast <spell> [slot level]`, `encounter move <feet>`, `encounter stand`, `encounter bonus`, `encounter reaction [character]`, `encounter save <character> <ability> <DC>`, `encounter endturn`, `encounter end` |
 | Checks | `check <ability> <DC> [skill]`, `save <ability> <DC>` |
 | Conditions | `condition add <condition>`, `condition remove <condition>` |
 | Recovery | `rest short`, `rest long` |
@@ -109,7 +111,7 @@ Each throw validates and retains its faces and exposes its selected `Value`. The
 
 Damage and Hit Dice use `DiceRoll`, which records a die size and validated faces. Damage with different die sizes uses one roll per dice group. Attacks calculate hits separately from damage and HP changes.
 
-Use `Encounter` in a `using` statement: it tracks direct character references, initiative, turns, actions, movement, reactions, Dodge and spell action restrictions, and observes character conditions during its lifetime. Encounter operations are available in the domain; the console currently focuses on character management rather than a combat UI.
+Use `Encounter` in a `using` statement or manage it through the console: it tracks direct character references, initiative, turns, actions, movement, reactions, Dodge and spell action restrictions, and observes character conditions during its lifetime. Encounter and combat operations are exposed directly in the console application and domain APIs.
 
 ## Rules and scope
 

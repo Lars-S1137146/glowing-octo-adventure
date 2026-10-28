@@ -10,6 +10,8 @@ public sealed partial class ConsoleApplication
     private readonly UserAccounts accounts;
     public User? CurrentUser { get; private set; }
     public Character? SelectedCharacter { get; private set; }
+    public Encounter? ActiveEncounter => activeEncounter;
+    private Encounter? activeEncounter;
 
     public ConsoleApplication(TextReader input, TextWriter output, UserAccounts? accounts = null, Func<string?>? readPassword = null)
     {
@@ -71,6 +73,8 @@ public sealed partial class ConsoleApplication
         switch (command)
         {
             case "logout":
+                activeEncounter?.Dispose();
+                activeEncounter = null;
                 CurrentUser = null;
                 SelectedCharacter = null;
                 output.WriteLine("Logged out.");
@@ -105,6 +109,8 @@ public sealed partial class ConsoleApplication
                 output.WriteLine($"HP: {Hero().Health.Value}, successes: {Hero().Health.DeathSuccesses}, failures: {Hero().Health.DeathFailures}, stable: {Hero().Health.IsStable}, dead: {Hero().Health.IsDead}");
                 break;
             case "condition": ConditionCommand(words); break;
+            case "attack": AttackCommand(words); break;
+            case "encounter": EncounterCommand(words); break;
             default: throw new ArgumentException("Unknown command. Type help.");
         }
     }
@@ -154,6 +160,10 @@ public sealed partial class ConsoleApplication
             inventory add <item> / remove <item>     One item at a time
             equip <item> / unequip <item>
             damage <amount> <type> / heal <amount> / temp <amount>
+            attack <target> [weapon]
+            encounter / encounter start [characters...] / encounter status / encounter end
+            encounter action <action> / encounter attack <target> [weapon] / encounter cast <spell>
+            encounter move <feet> / encounter stand / encounter bonus / encounter reaction / encounter endturn
             check <ability> <DC> [skill] / save <ability> <DC>
             deathsave
             condition add <condition> / remove <condition>

@@ -18,7 +18,7 @@ public sealed record DamageDice(int Count, int Sides);
 
 public static class Combat
 {
-    internal static int CoverBonus(Cover cover) => cover switch
+    public static int CoverBonus(Cover cover) => cover switch
     {
         Cover.Half => 2,
         Cover.ThreeQuarters => 5,
