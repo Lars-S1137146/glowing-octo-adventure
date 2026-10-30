@@ -147,6 +147,7 @@ public sealed partial class ConsoleApplication
     private void ShowHelp()
     {
         output.WriteLine("""
+            ----------------------------------------------------------------
             register [username] / login [username]   Password is prompted
             logout / quit
             character create / list / select <name> / rename <name>
@@ -169,6 +170,7 @@ public sealed partial class ConsoleApplication
             condition add <condition> / remove <condition>
             rest short / rest long
             Names with spaces may be quoted. Dice faces are supplied when prompted.
+            ----------------------------------------------------------------
             """);
     }
 }
